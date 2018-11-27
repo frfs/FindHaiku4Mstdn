@@ -7,7 +7,7 @@ WORKDIR /app
 RUN bundle install
 
 RUN apt-get update \
-  && apt-get install git mecab libmecab-dev mecab-ipadic-utf8 make curl xz-utils file -y \
+  && apt-get install git mecab libmecab-dev mecab-ipadic-utf8 make curl xz-utils file sudo -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
