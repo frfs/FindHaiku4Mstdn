@@ -17,5 +17,6 @@ RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git \
     && ./bin/install-mecab-ipadic-neologd -n -y \
     && rm -rf /opt/mecab-ipadic-neologd
 
+WORKDIR /app
 ENV RUBYOPT -EUTF-8
 CMD bundle exec ruby main.rb
