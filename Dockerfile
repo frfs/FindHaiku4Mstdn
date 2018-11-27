@@ -12,9 +12,10 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt
-RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git
-WORKDIR /opt/mecab-ipadic-neologd
-RUN ./bin/install-mecab-ipadic-neologd -n -y
+RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git \
+    && cd /opt/mecab-ipadic-neologd \
+    && ./bin/install-mecab-ipadic-neologd -n -y \
+    && rm -rf /opt/mecab-ipadic-neologd
 
 ENV RUBYOPT -EUTF-8
 CMD bundle exec ruby main.rb
