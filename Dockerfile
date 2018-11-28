@@ -18,5 +18,6 @@ RUN apt-get update \
   && apt-get purge git make curl xz-utils file -y \
   && apt-get autoremove -y
 
+WORKDIR /app
 ENV RUBYOPT -EUTF-8
 CMD bundle exec ruby main.rb
