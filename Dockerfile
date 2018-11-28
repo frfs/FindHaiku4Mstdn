@@ -9,7 +9,8 @@ WORKDIR /opt
 RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git \
     && cd /opt/mecab-ipadic-neologd \
     && ./bin/install-mecab-ipadic-neologd -n -y \
-    && rm -rf /opt/mecab-ipadic-neologd
+    && rm -rf /opt/mecab-ipadic-neologd \
+    && echo "dicdir = /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd/" > /etc/mecabrc
 
 # install app
 RUN mkdir /app
