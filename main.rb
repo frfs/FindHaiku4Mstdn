@@ -1,20 +1,18 @@
 require 'bundler/setup'
-require 'yaml'
 require 'mastodon'
 require 'ikku'
 require 'sanitize'
 
-config = YAML.load_file("./key.yml")
 debug = true
 unfollow_str = "俳句検出を停止してください"
 
 stream = Mastodon::Streaming::Client.new(
-  base_url: "https://" + config["base_url"],
-  bearer_token: config["access_token"])
+  base_url: "https://" + ENV["BASE_URL"],
+  bearer_token: ENV["ACCESS_TOKEN"])
 
 rest = Mastodon::REST::Client.new(
-  base_url: "https://" + config["base_url"],
-  bearer_token: config["access_token"])
+  base_url: "https://" + ENV["BASE_URL"],
+  bearer_token: ENV["ACCESS_TOKEN"])
 
 reviewer = Ikku::Reviewer.new
 
