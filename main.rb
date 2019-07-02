@@ -18,9 +18,8 @@ reviewer = Ikku::Reviewer.new
 
 reviewer_id = rest.verify_credentials().id
 
-c = 0
-stream.user() do |toot|
-  begin
+begin
+  stream.user() do |toot|
     if toot.kind_of?(Mastodon::Status) then
       content = Sanitize.clean(toot.content)
       unfollow_request = false
@@ -43,16 +42,16 @@ stream.user() do |toot|
           p "@#{toot.account.acct}: #{content}" if debug
           haiku = reviewer.find(content)
           if haiku then
-            postcontent = "『#{haiku.phrases[0].join("")}#{haiku.phrases[1].join("")}#{haiku.phrases[2].join("")}』"
+            postcontent = "『#{haiku.phrases[0].join("")} #{haiku.phrases[1].join("")} #{haiku.phrases[2].join("")}』"
             p "俳句検知: #{postcontent}" if debug
             p "tags: #{toot.attributes["tags"]}" if debug
-            if toot.attributes["tags"].map{|t| t["name"]}.include?("theboss_tech") then
-              postcontent += ' #theboss_tech'
+            if toot.attributes["tags"].map{|t| t["name"]}.include?("frfr") then
+              postcontent += ' #frfr'
             end
             if toot.attributes["spoiler_text"].empty? then
-              rest.create_status("@#{toot.account.acct} 俳句を発見致しました！\n" + postcontent, in_reply_to_id: toot.id)
+              rest.create_status("@#{toot.account.acct} 俳句を発見しました！\n" + postcontent, in_reply_to_id: toot.id)
             else
-              rest.create_status("@#{toot.account.acct}\n" + postcontent, in_reply_to_id: toot.id, spoiler_text: "俳句を発見致しました！")
+              rest.create_status("@#{toot.account.acct}\n" + postcontent, in_reply_to_id: toot.id, spoiler_text: "俳句を発見しました！")
             end
             p "post!" if debug
           elsif debug
@@ -68,15 +67,9 @@ stream.user() do |toot|
       p "#{toot.type} by #{toot.account.id}" if debug
       rest.follow(toot.account.id) if toot.type == "follow"
     end
-  rescue => e
-    puts e
-    c += 1
-    if t < 3
-      p "retry"
-      retry
-    else
-      p "skip"
-      next
-    end
   end
+rescue => e
+  p "error"
+  puts e
+  retry
 end
