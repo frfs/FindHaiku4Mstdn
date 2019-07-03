@@ -3,7 +3,7 @@ FROM ruby:2.4-stretch
 COPY . /app
 
 RUN apt-get update \
-  && apt-get install git mecab libmecab-dev mecab-ipadic-utf8 make curl xz-utils file sudo -y \
+  && apt-get install git mecab libmecab-dev mecab-ipadic-utf8 make curl xz-utils file sudo --no-install-recommends -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && cd /opt \
