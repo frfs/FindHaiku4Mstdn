@@ -6,12 +6,14 @@ require 'sanitize'
 debug = true
 unfollow_str = "俳句検出を停止してください"
 
+p(ENV["BASE_URL"], ENV["WS_URL"]) if debug
+
 stream = Mastodon::Streaming::Client.new(
-  base_url: "https://" + ENV["BASE_URL"],
+  base_url: ENV["WS_URL"] || ENV["BASE_URL"],
   bearer_token: ENV["ACCESS_TOKEN"])
 
 rest = Mastodon::REST::Client.new(
-  base_url: "https://" + ENV["BASE_URL"],
+  base_url: ENV["BASE_URL"],
   bearer_token: ENV["ACCESS_TOKEN"])
 
 reviewer = Ikku::Reviewer.new
@@ -37,22 +39,37 @@ begin
           end
         end
       end
+      if toot.account.id == reviewer_id then
+        p "skip own post" if debug
+        next
+      end
       if !unfollow_request && (toot.visibility == "public" || toot.visibility == "unlisted") then
         if toot.in_reply_to_id.nil? && toot.attributes["reblog"].nil? then
           p "@#{toot.account.acct}: #{content}" if debug
-          haiku = reviewer.find(content)
-          if haiku then
+          songs = reviewer.search(content)
+          if songs.length > 0 then
+            haiku = songs.first
             postcontent = "『#{haiku.phrases[0].join("")} #{haiku.phrases[1].join("")} #{haiku.phrases[2].join("")}』"
             p "俳句検知: #{postcontent}" if debug
             p "tags: #{toot.attributes["tags"]}" if debug
             if toot.attributes["tags"].map{|t| t["name"]}.include?("frfr") then
               postcontent += ' #frfr'
             end
+            posted = nil
             if toot.attributes["spoiler_text"].empty? then
-              rest.create_status("@#{toot.account.acct} 俳句を発見しました！\n" + postcontent, in_reply_to_id: toot.id)
+              posted = rest.create_status("@#{toot.account.acct} 俳句を発見しました！\n" + postcontent, in_reply_to_id: toot.id)
             else
-              rest.create_status("@#{toot.account.acct}\n" + postcontent, in_reply_to_id: toot.id, spoiler_text: "俳句を発見しました！")
+              posted = rest.create_status("@#{toot.account.acct}\n" + postcontent, in_reply_to_id: toot.id, spoiler_text: "俳句を発見しました！")
             end
+            rest.create_status(
+              songs.map do |song|
+                song.phrases.map do |node|
+                  "#{node.map(&:pronunciation).join(",")}[#{node.map(&:pronunciation_length).join(",")}]"
+                end.join("\n")
+              end,
+              visibility: :unlisted,
+              in_reply_to_id: posted.id,
+            )
             p "post!" if debug
           elsif debug
             p "俳句なし"

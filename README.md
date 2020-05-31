@@ -3,14 +3,13 @@ mastodon上で、俳句を検出するbotのプログラムです。日々のト
 
 ## 使い方
 1. mecabをなんとかして入れる
-2. 以下を参考に`key.yml`という設定ファイルを作成し、どうにかして`base_url`と`access_token`を入手して記載する
-```key.yml
-base_url: theboss.tech
-access_token: tx8j4j3yb5ibxuns6i3w73ndpffmg4c7jxcr7jr5psgn5de4a38k5d5jjc4tsir8
+2. 以下を参考に`.env`という設定ファイルを作成し、どうにかして`BASE_URL`と`ACCESS_TOKEN`を入手して記載する
+```env
+BASE_URL=https://example.com
+ACCESS_TOKEN=tx8j4j3yb5ibxuns6i3w73ndpffmg4c7jxcr7jr5psgn5de4a38k5d5jjc4tsir8
 ```
-3. `bundle install`
-4. `bundle exec ruby main.rb`
-5.  ✌('ω'✌ )三✌('ω')✌三( ✌'ω')✌
+3. `docker-compose up -d`
+4.  ✌('ω'✌ )三✌('ω')✌三( ✌'ω')✌
 
 ## 現状
 - 撥音とかがおかしい？
