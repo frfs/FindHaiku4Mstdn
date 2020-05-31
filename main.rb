@@ -2,6 +2,7 @@ require 'bundler/setup'
 require 'mastodon'
 require 'ikku'
 require 'sanitize'
+require "./reporter.rb"
 
 debug = true
 unfollow_str = "俳句検出を停止してください"
@@ -16,7 +17,7 @@ rest = Mastodon::REST::Client.new(
   base_url: ENV["BASE_URL"],
   bearer_token: ENV["ACCESS_TOKEN"])
 
-reviewer = Ikku::Reviewer.new
+reporter = Reporter.new
 
 reviewer_id = rest.verify_credentials().id
 
@@ -46,7 +47,7 @@ begin
       if !unfollow_request && (toot.visibility == "public" || toot.visibility == "unlisted") then
         if toot.in_reply_to_id.nil? && toot.attributes["reblog"].nil? then
           p "@#{toot.account.acct}: #{content}" if debug
-          songs = reviewer.search(content)
+          songs, reports = reporter.report(content)
           if songs.length > 0 then
             haiku = songs.first
             postcontent = "『#{haiku.phrases[0].join("")} #{haiku.phrases[1].join("")} #{haiku.phrases[2].join("")}』"
@@ -62,15 +63,16 @@ begin
               posted = rest.create_status("@#{toot.account.acct}\n" + postcontent, in_reply_to_id: toot.id, spoiler_text: "俳句を発見しました！")
             end
             rest.create_status(
-              songs.map do |song|
-                song.phrases.map do |node|
-                  "#{node.map(&:pronunciation).join(",")}[#{node.map(&:pronunciation_length).join(",")}]"
-                end.join("\n")
-              end,
+              reports,
               visibility: :unlisted,
               in_reply_to_id: posted.id,
             )
             p "post!" if debug
+          elsif toot.mentions.any? {|m| m.id == reviewer_id}
+            rest.create_status(
+              "@#{toot.account.acct}\n" + reports,
+              in_reply_to_id: toot.id,
+            )
           elsif debug
             p "俳句なし"
           end
@@ -86,7 +88,7 @@ begin
     end
   end
 rescue => e
-  p "error"
-  puts e
+  p "error", e
+  puts e.backtrace
   retry
 end

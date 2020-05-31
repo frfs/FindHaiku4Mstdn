@@ -26,3 +26,10 @@ ACCESS_TOKEN=tx8j4j3yb5ibxuns6i3w73ndpffmg4c7jxcr7jr5psgn5de4a38k5d5jjc4tsir8
 問題を発見した方は[@theoria@wug.fun](https://wug.fun/@theoria)や[@theoria@knzk.me](https://knzk.me/@theoria)、[@theoria@theboss.tech](https://theboss.tech/@theoria)、[@theoria@mstdn.jp](https://mstdn.jp/@theoria)、あるいは[Twitter](https://twitter.com/_theoria)に連絡していただけるとありがたいです。ここに[Issue](https://github.com/theoria24/FindHaiku4Mstdn/issues/new)を立てていただいても構いません。
 
 プルリク歓迎です。
+
+## testing
+
+```bash
+docker-compose up -d
+docker-compose exec app bundle exec ruby test.rb
+```
