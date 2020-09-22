@@ -66,6 +66,7 @@ begin
               reports,
               visibility: :unlisted,
               in_reply_to_id: posted.id,
+              spoiler_text: "俳句解析結果"
             )
             p "post!" if debug
           elsif toot.mentions.any? {|m| m.id == reviewer_id}
